@@ -10,7 +10,6 @@ public record OrderCreatedEvent(
         Instant occurredAt,
         String orderId,
         String customerId,
-        List<OrderLine> lines,
         BigDecimal totalAmount
 ) {
 }

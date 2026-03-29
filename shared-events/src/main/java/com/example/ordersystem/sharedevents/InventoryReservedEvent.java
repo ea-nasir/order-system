@@ -6,6 +6,8 @@ import java.util.UUID;
 public record InventoryReservedEvent(
         UUID eventId,
         Instant occurredAt,
-        String orderId
+        String orderId,
+        String productId,
+        int quantity
 ) {
 }

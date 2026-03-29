@@ -1,8 +1,6 @@
 rootProject.name = 'order-system'
-include 'src:main:shared-events'
-findProject(':src:main:shared-events')?.name = 'shared-events'
+
 include 'shared-events'
 include 'order-service'
 include 'inventory-service'
 include 'payment-service'
-

@@ -12,9 +12,6 @@
             <option value="$PROJECT_DIR$/order-service" />
             <option value="$PROJECT_DIR$/payment-service" />
             <option value="$PROJECT_DIR$/shared-events" />
-            <option value="$PROJECT_DIR$/src" />
-            <option value="$PROJECT_DIR$/src/main" />
-            <option value="$PROJECT_DIR$/src/main/shared-events" />
           </set>
         </option>
       </GradleProjectSettings>

@@ -9,7 +9,7 @@ import java.time.Instant;
 public class OrderEntity {
 
     @Id
-    private String id;
+    private String orderId;
 
     private String customerId;
 
@@ -29,7 +29,7 @@ public class OrderEntity {
     public OrderEntity() {
     }
 
-    public OrderEntity(String id,
+    public OrderEntity(String orderId,
                        String customerId,
                        String productId,
                        int quantity,
@@ -37,7 +37,7 @@ public class OrderEntity {
                        BigDecimal totalAmount,
                        OrderStatus status,
                        Instant createdAt) {
-        this.id = id;
+        this.orderId = orderId;
         this.customerId = customerId;
         this.productId = productId;
         this.quantity = quantity;
@@ -47,8 +47,8 @@ public class OrderEntity {
         this.createdAt = createdAt;
     }
 
-    public String getId() {
-        return id;
+    public String getOrderId() {
+        return orderId;
     }
 
     public String getCustomerId() {

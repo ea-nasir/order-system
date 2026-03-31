@@ -21,7 +21,7 @@ public class OrderCreatedConsumer {
         this.inventoryService = inventoryService;
         this.kafkaTemplate = kafkaTemplate;
     }
-    @KafkaListener(topics = KafkaTopics.ORDERS_CREATED,groupId = "inventory.service")
+    @KafkaListener(topics = KafkaTopics.ORDERS_CREATED,groupId = "inventory.service.v2")
     public void consume(OrderCreatedEvent event){
         boolean reserved = inventoryService.reserve(
                 event.orderId(),
@@ -31,7 +31,7 @@ public class OrderCreatedConsumer {
 
         if (reserved) {
             kafkaTemplate.send(
-                    "inventory.reserved",
+                    KafkaTopics.INVENTORY_RESERVED,
                     event.orderId(),
                     new InventoryReservedEvent(
                             UUID.randomUUID(),
@@ -43,7 +43,7 @@ public class OrderCreatedConsumer {
             );
         } else {
             kafkaTemplate.send(
-                    "inventory.rejected",
+                    KafkaTopics.INVENTORY_REJECTED,
                     event.orderId(),
                     new InventoryRejectedEvent(
                             UUID.randomUUID(),

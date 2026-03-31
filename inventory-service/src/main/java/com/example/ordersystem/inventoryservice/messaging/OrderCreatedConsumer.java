@@ -21,7 +21,7 @@ public class OrderCreatedConsumer {
         this.inventoryService = inventoryService;
         this.kafkaTemplate = kafkaTemplate;
     }
-    @KafkaListener(topics = KafkaTopics.ORDERS_CREATED,groupId = "inventory.service.v2")
+    @KafkaListener(topics = KafkaTopics.ORDERS_CREATED,groupId = "inventory.service") //todo: make groupids psfs
     public void consume(OrderCreatedEvent event){
         boolean reserved = inventoryService.reserve(
                 event.orderId(),

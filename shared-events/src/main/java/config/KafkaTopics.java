@@ -9,5 +9,6 @@ public final class KafkaTopics {
     public static final String PAYMENTS_AUTHORIZED = "payments.authorized";
     public static final String PAYMENTS_FAILED = "payments.failed";
 
-    private KafkaTopics() {}
+    private KafkaTopics() {
+    }
 }

@@ -1,7 +1,8 @@
 package com.example.ordersystem.orderservice.messaging;
 
 import com.example.ordersystem.orderservice.service.OrderService;
-import com.example.ordersystem.sharedevents.*;
+import com.example.ordersystem.sharedevents.OrderConfirmedEvent;
+import com.example.ordersystem.sharedevents.PaymentAuthorizedEvent;
 import config.KafkaTopics;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.core.KafkaTemplate;
@@ -11,14 +12,15 @@ import java.util.UUID;
 
 public class PaymentsAuthorizedConsumer {
     OrderService orderService;
-    KafkaTemplate<String,Object> kafkaTemplate;
+    KafkaTemplate<String, Object> kafkaTemplate;
 
-    public PaymentsAuthorizedConsumer(OrderService orderService, KafkaTemplate<String,Object> kafkaTemplate){
+    public PaymentsAuthorizedConsumer(OrderService orderService, KafkaTemplate<String, Object> kafkaTemplate) {
         this.orderService = orderService;
         this.kafkaTemplate = kafkaTemplate;
     }
-    @KafkaListener(topics = KafkaTopics.PAYMENTS_AUTHORIZED,groupId = "order.service") //todo: make groupids psfs
-    public void consume(PaymentAuthorizedEvent paymentAuthorizedEvent){
+
+    @KafkaListener(topics = KafkaTopics.PAYMENTS_AUTHORIZED, groupId = "order.service") //todo: make groupids psfs
+    public void consume(PaymentAuthorizedEvent paymentAuthorizedEvent) {
         orderService.confirmOrder(
                 paymentAuthorizedEvent.orderId(),
                 paymentAuthorizedEvent.occurredAt()
@@ -29,7 +31,7 @@ public class PaymentsAuthorizedConsumer {
                 new OrderConfirmedEvent(
                         UUID.randomUUID(),
                         Instant.now(),
-                        paymentAuthorizedEvent.orderId(),
+                        paymentAuthorizedEvent.orderId()
                 )
         );
     }

@@ -1,6 +1,7 @@
 package com.example.ordersystem.orderservice.entity;
 
 import jakarta.persistence.*;
+
 import java.math.BigDecimal;
 import java.time.Instant;
 
@@ -75,11 +76,11 @@ public class OrderEntity {
         return status;
     }
 
-    public Instant getCreatedAt() {
-        return createdAt;
-    }
-
     public void setStatus(OrderStatus status) {
         this.status = status;
+    }
+
+    public Instant getCreatedAt() {
+        return createdAt;
     }
 }

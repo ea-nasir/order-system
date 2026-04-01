@@ -15,14 +15,15 @@ import java.util.UUID;
 @Component
 public class OrderCreatedConsumer {
     InventoryService inventoryService;
-    KafkaTemplate<String,Object> kafkaTemplate;
+    KafkaTemplate<String, Object> kafkaTemplate;
 
-    public OrderCreatedConsumer(InventoryService inventoryService, KafkaTemplate<String,Object> kafkaTemplate){
+    public OrderCreatedConsumer(InventoryService inventoryService, KafkaTemplate<String, Object> kafkaTemplate) {
         this.inventoryService = inventoryService;
         this.kafkaTemplate = kafkaTemplate;
     }
-    @KafkaListener(topics = KafkaTopics.ORDERS_CREATED,groupId = "inventory.service") //todo: make groupids psfs
-    public void consume(OrderCreatedEvent event){
+
+    @KafkaListener(topics = KafkaTopics.ORDERS_CREATED, groupId = "inventory.service") //todo: make groupids psfs
+    public void consume(OrderCreatedEvent event) {
         boolean reserved = inventoryService.reserve(
                 event.orderId(),
                 event.productId(),

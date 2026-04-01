@@ -5,9 +5,10 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class PaymentService {
-    public PaymentService(){}
+    public PaymentService() {
+    }
 
-    public boolean authorize(Payment payment){
+    public boolean authorize(Payment payment) {
         return true; //todo: make test logic
     }
 }

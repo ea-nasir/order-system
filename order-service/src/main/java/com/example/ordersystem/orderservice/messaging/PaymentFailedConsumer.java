@@ -20,7 +20,7 @@ public class PaymentFailedConsumer {
         this.kafkaTemplate = kafkaTemplate;
     }
 
-    @KafkaListener(topics = KafkaTopics.PAYMENTS_AUTHORIZED, groupId = "order.service") //todo: make groupids psfs
+    @KafkaListener(topics = KafkaTopics.PAYMENTS_FAILED, groupId = "order.service") //todo: make groupids psfs
     public void consume(PaymentFailedEvent paymentFailedEvent) {
         orderService.rejectOrder(
                 paymentFailedEvent.orderId(),

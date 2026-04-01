@@ -29,14 +29,14 @@ public class InventoryReservedConsumer {
         boolean authorized = paymentService.authorize(new Payment(orderId, inventoryReservedEvent.totalAmount()));
 
         if (!authorized) {
-            kafkaTemplate.send(KafkaTopics.PAYMENTS_FAILED, new PaymentFailedEvent(
+            kafkaTemplate.send(KafkaTopics.PAYMENTS_FAILED, orderId, new PaymentFailedEvent(
                     UUID.randomUUID(),
                     Instant.now(),
                     orderId,
                     "Payment failed due to x issue" //todo: make better reasons
             ));
         }
-        kafkaTemplate.send(KafkaTopics.PAYMENTS_AUTHORIZED, new PaymentAuthorizedEvent(
+        kafkaTemplate.send(KafkaTopics.PAYMENTS_AUTHORIZED, orderId, new PaymentAuthorizedEvent(
                 UUID.randomUUID(),
                 Instant.now(),
                 orderId

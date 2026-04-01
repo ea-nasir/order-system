@@ -75,4 +75,16 @@ public class OrderService {
                 Instant.now()
         );
     }
+
+    public void rejectOrder(String orderId, Instant instant) {
+        OrderEntity orderEntity = orderRepository.findById(orderId).orElseThrow();
+        orderEntity.setStatus(OrderStatus.REJECTED);
+        orderRepository.save(orderEntity);
+    }
+
+    public void confirmOrder(String orderId, Instant instant) {
+        OrderEntity orderEntity = orderRepository.findById(orderId).orElseThrow();
+        orderEntity.setStatus(OrderStatus.CONFIRMED);
+        orderRepository.save(orderEntity);
+    }
 }

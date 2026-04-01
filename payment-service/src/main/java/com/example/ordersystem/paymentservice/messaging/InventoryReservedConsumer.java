@@ -35,7 +35,7 @@ public class InventoryReservedConsumer {
                     "Payment failed due to x issue" //todo: make better reasons
             ));
         }
-        kafkaTemplate.send(KafkaTopics.PAYMENTS_COMPLETED, new PaymentAuthorizedEvent(
+        kafkaTemplate.send(KafkaTopics.PAYMENTS_AUTHORIZED, new PaymentAuthorizedEvent(
                 UUID.randomUUID(),
                 Instant.now(),
                 orderId

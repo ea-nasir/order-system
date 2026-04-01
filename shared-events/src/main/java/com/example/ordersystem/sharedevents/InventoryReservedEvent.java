@@ -1,5 +1,6 @@
 package com.example.ordersystem.sharedevents;
 
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.UUID;
 
@@ -8,6 +9,7 @@ public record InventoryReservedEvent(
         Instant occurredAt,
         String orderId,
         String productId,
-        int quantity
+        int quantity,
+        BigDecimal totalAmount
 ) {
 }

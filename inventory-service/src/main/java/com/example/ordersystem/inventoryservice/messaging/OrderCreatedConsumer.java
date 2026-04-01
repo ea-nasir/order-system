@@ -38,7 +38,8 @@ public class OrderCreatedConsumer {
                             Instant.now(),
                             event.orderId(),
                             event.productId(),
-                            event.quantity()
+                            event.quantity(),
+                            event.totalAmount()
                     )
             );
         } else {

@@ -8,7 +8,7 @@ import java.util.Map;
 @Service
 public class InventoryService {
     private final Map<String,Integer> stock = new HashMap<>();
-    private final Map<String,Reservation> reservationMap = new HashMap<>();
+    private final Map<String,Reservation> reservationMap = new HashMap<>(); //todo: check reservations?
 
     public InventoryService(){
         initStock(stock);

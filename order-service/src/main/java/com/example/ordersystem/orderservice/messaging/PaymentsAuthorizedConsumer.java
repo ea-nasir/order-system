@@ -6,10 +6,11 @@ import com.example.ordersystem.sharedevents.PaymentAuthorizedEvent;
 import config.KafkaTopics;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.stereotype.Component;
 
 import java.time.Instant;
 import java.util.UUID;
-
+@Component
 public class PaymentsAuthorizedConsumer {
     OrderService orderService;
     KafkaTemplate<String, Object> kafkaTemplate;

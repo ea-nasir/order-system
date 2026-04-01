@@ -3,6 +3,8 @@ package com.example.ordersystem.inventoryservice.service;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.util.Map;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -20,20 +22,22 @@ class InventoryServiceTest {
         boolean reserved = inventoryService.reserve("order-1", "CHAIR", 2); //todo: bind test quantities to stock setup
 
         assertTrue(reserved);
-        assertEquals(8, inventoryService.getStock("CHAIR"));
+        assertEquals(8, inventoryService.getItemFromStock("CHAIR"));
 
         inventoryService.releaseReservation("order-1");
 
-        assertEquals(10, inventoryService.getStock("CHAIR"));
+        assertEquals(10, inventoryService.getItemFromStock("CHAIR"));
     }
 
     @Test
     void releaseReservation_shouldDoNothingIfReservationDoesNotExist() {
-        assertEquals(10, inventoryService.getStock("CHAIR"));
+        int stockBefore = inventoryService.getStock().hashCode();
+        assertEquals(10, inventoryService.getItemFromStock("CHAIR"));
 
         inventoryService.releaseReservation("missing-order");
 
-        assertEquals(10, inventoryService.getStock("CHAIR"));
+        assertEquals(stockBefore,inventoryService.getStock().hashCode());
+        assertEquals(10, inventoryService.getItemFromStock("CHAIR"));
     }
 
     @Test
@@ -43,11 +47,11 @@ class InventoryServiceTest {
 
         assertTrue(reserved1);
         assertTrue(reserved2);
-        assertEquals(5, inventoryService.getStock("CHAIR"));
+        assertEquals(5, inventoryService.getItemFromStock("CHAIR"));
 
         inventoryService.releaseReservation("order-1");
 
-        assertEquals(7, inventoryService.getStock("CHAIR"));
+        assertEquals(7, inventoryService.getItemFromStock("CHAIR"));
     }
 
     @Test
@@ -55,12 +59,12 @@ class InventoryServiceTest {
         boolean reserved = inventoryService.reserve("order-1", "CHAIR", 2);
 
         assertTrue(reserved);
-        assertEquals(8, inventoryService.getStock("CHAIR"));
+        assertEquals(8, inventoryService.getItemFromStock("CHAIR"));
 
         inventoryService.releaseReservation("order-1");
-        assertEquals(10, inventoryService.getStock("CHAIR"));
+        assertEquals(10, inventoryService.getItemFromStock("CHAIR"));
 
         inventoryService.releaseReservation("order-1");
-        assertEquals(10, inventoryService.getStock("CHAIR"));
+        assertEquals(10, inventoryService.getItemFromStock("CHAIR"));
     }
 }

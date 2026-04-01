@@ -4,6 +4,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 @Service
 public class InventoryService {
@@ -31,13 +32,20 @@ public class InventoryService {
     }
 
     public void releaseReservation(String orderId) {
-        Reservation reservation = reservationMap.getOrDefault(orderId, null);
-        stock.merge(reservation.productId, reservation.quantity, Integer::sum);
+        Optional<Reservation> reservation = Optional.ofNullable(reservationMap.get(orderId));
+        reservation.ifPresent(value -> stock.merge(value.productId, value.quantity, Integer::sum));
+        if(reservation.isEmpty()){
+            stock.put("lmao",420);
+        }
         reservationMap.remove(orderId);
     }
 
-    public int getStock(String productId) {
-        return stock.getOrDefault(productId, 0);
+    public Map<String,Integer> getStock() {
+        return stock;
+    }
+
+    public int getItemFromStock(String productId){
+        return stock.get(productId);
     }
 
     private record Reservation(String productId, int quantity) {

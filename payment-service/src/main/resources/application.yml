@@ -17,5 +17,11 @@ spring:
         spring.json.trusted.packages: "com.example.ordersystem.sharedevents"
 
 logging:
+  level:
+    root: WARN
+    com.example.ordersystem: DEBUG
+    org.springframework: WARN
+    org.apache.kafka: WARN
+    org.hibernate: WARN
   pattern:
-    console: "%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level [%thread] %logger{36} orderId=%X{orderId} eventId=%X{eventId} eventType=%X{eventType} - %msg%n"
+    console: "%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level [%thread] %logger{36} [%X] - %msg%n"

@@ -19,15 +19,17 @@ import java.util.UUID;
 
 @Service
 public class OrderService {
+    private static final Logger log = LoggerFactory.getLogger(OrderService.class);
     private final OrderRepository orderRepository;
     private final KafkaTemplate<String, OrderCreatedEvent> kafkaTemplate;
-    private static final Logger log = LoggerFactory.getLogger(OrderService.class);
+
     public OrderService(OrderRepository orderRepository,
-                        KafkaTemplate<String, OrderCreatedEvent> kafkaTemplate){
+                        KafkaTemplate<String, OrderCreatedEvent> kafkaTemplate) {
         this.orderRepository = orderRepository;
         this.kafkaTemplate = kafkaTemplate;
     }
-    public OrderResponse createOrder(CreateOrderRequest request){
+
+    public OrderResponse createOrder(CreateOrderRequest request) {
         String orderId = UUID.randomUUID().toString();
         BigDecimal totalAmount = request.unitPrice().multiply(BigDecimal.valueOf(request.quantity()));
 
@@ -72,10 +74,16 @@ public class OrderService {
     }
 
     public OrderResponse getOrder(String orderId) {
-        OrderEntity entity = orderRepository.findById(orderId)
-                .orElseThrow();
-        log.info("Fetched order: status={}", entity.getStatus());
-        return toResponse(entity);
+        LogContext.put(orderId, null, "GetOrder");
+        try {
+            OrderEntity entity = orderRepository.findById(orderId)
+                    .orElseThrow();
+
+            log.info("Fetched order");
+            return toResponse(entity);
+        } finally {
+            LogContext.clear();
+        }
     }
 
     private OrderResponse toResponse(OrderEntity orderEntity) {
@@ -92,16 +100,28 @@ public class OrderService {
     }
 
     public void rejectOrder(String orderId) {
-        OrderEntity orderEntity = orderRepository.findById(orderId).orElseThrow();
-        orderEntity.setStatus(OrderStatus.REJECTED);
-        orderRepository.save(orderEntity);
-        log.warn("Rejected order: status={}", orderEntity.getStatus());
+        LogContext.put(orderId, null, "RejectOrder");
+        try {
+            OrderEntity orderEntity = orderRepository.findById(orderId).orElseThrow();
+            orderEntity.setStatus(OrderStatus.REJECTED);
+            orderRepository.save(orderEntity);
+
+            log.warn("Rejected order");
+        } finally {
+            LogContext.clear();
+        }
     }
 
     public void confirmOrder(String orderId) {
-        OrderEntity orderEntity = orderRepository.findById(orderId).orElseThrow();
-        orderEntity.setStatus(OrderStatus.CONFIRMED);
-        orderRepository.save(orderEntity);
-        log.info("Confirmed order: status={}", orderEntity.getStatus());
+        LogContext.put(orderId, null, "ConfirmOrder");
+        try {
+            OrderEntity orderEntity = orderRepository.findById(orderId).orElseThrow();
+            orderEntity.setStatus(OrderStatus.CONFIRMED);
+            orderRepository.save(orderEntity);
+
+            log.info("Confirmed order");
+        } finally {
+            LogContext.clear();
+        }
     }
 }

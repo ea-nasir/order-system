@@ -5,6 +5,8 @@ import com.example.ordersystem.sharedevents.OrderConfirmedEvent;
 import com.example.ordersystem.sharedevents.OrderRejectedEvent;
 import com.example.ordersystem.sharedevents.PaymentFailedEvent;
 import config.KafkaTopics;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
@@ -15,6 +17,7 @@ import java.util.UUID;
 public class PaymentFailedConsumer {
     OrderService orderService;
     KafkaTemplate<String, Object> kafkaTemplate;
+    private static final Logger log = LoggerFactory.getLogger(PaymentFailedConsumer.class);
 
     public PaymentFailedConsumer(OrderService orderService, KafkaTemplate<String, Object> kafkaTemplate) {
         this.orderService = orderService;

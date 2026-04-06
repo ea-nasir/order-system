@@ -2,6 +2,7 @@ package com.example.ordersystem.orderservice.messaging;
 
 import com.example.ordersystem.orderservice.service.OrderService;
 import com.example.ordersystem.sharedevents.OrderConfirmedEvent;
+import com.example.ordersystem.sharedevents.OrderRejectedEvent;
 import com.example.ordersystem.sharedevents.PaymentFailedEvent;
 import config.KafkaTopics;
 import org.springframework.kafka.annotation.KafkaListener;
@@ -29,10 +30,11 @@ public class PaymentFailedConsumer {
         kafkaTemplate.send(
                 KafkaTopics.ORDERS_REJECTED,
                 paymentFailedEvent.orderId(),
-                new OrderConfirmedEvent(
+                new OrderRejectedEvent(
                         UUID.randomUUID(),
                         Instant.now(),
-                        paymentFailedEvent.orderId()
+                        paymentFailedEvent.orderId(),
+                        "Order rejected due to x reason"
                 )
         );
     }

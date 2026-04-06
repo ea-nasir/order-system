@@ -2,11 +2,14 @@ package com.example.ordersystem.orderservice.service;
 
 import com.example.ordersystem.orderservice.entity.OrderEntity;
 import com.example.ordersystem.orderservice.entity.OrderStatus;
+import com.example.ordersystem.orderservice.logging.LogContext;
 import com.example.ordersystem.orderservice.model.CreateOrderRequest;
 import com.example.ordersystem.orderservice.model.OrderResponse;
 import com.example.ordersystem.orderservice.repository.OrderRepository;
 import com.example.ordersystem.sharedevents.OrderCreatedEvent;
 import config.KafkaTopics;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
@@ -18,6 +21,7 @@ import java.util.UUID;
 public class OrderService {
     private final OrderRepository orderRepository;
     private final KafkaTemplate<String, OrderCreatedEvent> kafkaTemplate;
+    private static final Logger log = LoggerFactory.getLogger(OrderService.class);
     public OrderService(OrderRepository orderRepository,
                         KafkaTemplate<String, OrderCreatedEvent> kafkaTemplate){
         this.orderRepository = orderRepository;
@@ -27,39 +31,50 @@ public class OrderService {
         String orderId = UUID.randomUUID().toString();
         BigDecimal totalAmount = request.unitPrice().multiply(BigDecimal.valueOf(request.quantity()));
 
-        OrderEntity orderEntity = new OrderEntity(
-                orderId,
-                request.customerId(),
-                request.productId(),
-                request.quantity(),
-                request.unitPrice(),
-                totalAmount,
-                OrderStatus.CREATED,
-                Instant.now()
-        );
+        LogContext.put(orderId, null, "CreateOrder");
+        try {
+            log.info("Creating order: customerId={}, productId={}, quantity={}, totalAmount={}",
+                    request.customerId(), request.productId(), request.quantity(), totalAmount);
 
-        orderRepository.save(orderEntity);
+            OrderEntity orderEntity = new OrderEntity(
+                    orderId,
+                    request.customerId(),
+                    request.productId(),
+                    request.quantity(),
+                    request.unitPrice(),
+                    totalAmount,
+                    OrderStatus.CREATED,
+                    Instant.now()
+            );
 
-        OrderCreatedEvent orderCreatedEvent = new OrderCreatedEvent(
-                UUID.randomUUID(),
-                Instant.now(),
-                orderId,
-                request.customerId(),
-                request.productId(),
-                request.quantity(),
-                request.unitPrice(),
-                totalAmount
-        );
+            orderRepository.save(orderEntity);
+            log.info("Persisted order: status={}", orderEntity.getStatus());
 
-        kafkaTemplate.send(KafkaTopics.ORDERS_CREATED,orderId,orderCreatedEvent);
+            OrderCreatedEvent orderCreatedEvent = new OrderCreatedEvent(
+                    UUID.randomUUID(),
+                    Instant.now(),
+                    orderId,
+                    request.customerId(),
+                    request.productId(),
+                    request.quantity(),
+                    request.unitPrice(),
+                    totalAmount
+            );
 
-        return toResponse(orderEntity);
+            kafkaTemplate.send(KafkaTopics.ORDERS_CREATED, orderId, orderCreatedEvent);
+            log.info("Published OrderCreatedEvent: topic={}, eventId={}",
+                    KafkaTopics.ORDERS_CREATED, orderCreatedEvent.eventId());
+
+            return toResponse(orderEntity);
+        } finally {
+            LogContext.clear();
+        }
     }
 
     public OrderResponse getOrder(String orderId) {
         OrderEntity entity = orderRepository.findById(orderId)
                 .orElseThrow();
-
+        log.info("Fetched order: status={}", entity.getStatus());
         return toResponse(entity);
     }
 
@@ -80,11 +95,13 @@ public class OrderService {
         OrderEntity orderEntity = orderRepository.findById(orderId).orElseThrow();
         orderEntity.setStatus(OrderStatus.REJECTED);
         orderRepository.save(orderEntity);
+        log.warn("Rejected order: status={}", orderEntity.getStatus());
     }
 
     public void confirmOrder(String orderId) {
         OrderEntity orderEntity = orderRepository.findById(orderId).orElseThrow();
         orderEntity.setStatus(OrderStatus.CONFIRMED);
         orderRepository.save(orderEntity);
+        log.info("Confirmed order: status={}", orderEntity.getStatus());
     }
 }

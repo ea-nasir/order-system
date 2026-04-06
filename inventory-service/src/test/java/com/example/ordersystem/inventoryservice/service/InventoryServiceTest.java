@@ -1,20 +1,22 @@
 package com.example.ordersystem.inventoryservice.service;
 
+import com.example.ordersystem.sharedevents.InventoryRejectedEvent;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
-import java.util.Map;
+import org.springframework.kafka.core.KafkaTemplate;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.mock;
 
 class InventoryServiceTest {
 
-    private InventoryService inventoryService;
+    KafkaTemplate<String, InventoryRejectedEvent> kafkaTemplate = mock(KafkaTemplate.class);
+    InventoryService inventoryService = new InventoryService(kafkaTemplate);
 
     @BeforeEach
     void setUp() {
-        inventoryService = new InventoryService();
+        inventoryService = new InventoryService(kafkaTemplate);
     }
 
     @Test
@@ -36,7 +38,7 @@ class InventoryServiceTest {
 
         inventoryService.releaseReservation("missing-order");
 
-        assertEquals(stockBefore,inventoryService.getStock().hashCode());
+        assertEquals(stockBefore, inventoryService.getStock().hashCode());
         assertEquals(10, inventoryService.getItemFromStock("CHAIR"));
     }
 

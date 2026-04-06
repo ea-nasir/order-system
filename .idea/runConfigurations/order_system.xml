@@ -1,0 +1,8 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="order-system" type="CompoundRunConfigurationType">
+    <toRun name="InventoryServiceApplication" type="Application" />
+    <toRun name="OrderServiceApplication" type="Application" />
+    <toRun name="PaymentServiceApplication" type="Application" />
+    <method v="2" />
+  </configuration>
+</component>

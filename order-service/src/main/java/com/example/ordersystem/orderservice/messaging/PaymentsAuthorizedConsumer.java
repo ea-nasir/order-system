@@ -23,8 +23,7 @@ public class PaymentsAuthorizedConsumer {
     @KafkaListener(topics = KafkaTopics.PAYMENTS_AUTHORIZED, groupId = "order.service") //todo: make groupids psfs
     public void consume(PaymentAuthorizedEvent paymentAuthorizedEvent) {
         orderService.confirmOrder(
-                paymentAuthorizedEvent.orderId(),
-                paymentAuthorizedEvent.occurredAt()
+                paymentAuthorizedEvent.orderId()
         );
         kafkaTemplate.send(
                 KafkaTopics.ORDERS_CONFIRMED,

@@ -24,8 +24,7 @@ public class PaymentFailedConsumer {
     @KafkaListener(topics = KafkaTopics.PAYMENTS_FAILED, groupId = "order.service") //todo: make groupids psfs
     public void consume(PaymentFailedEvent paymentFailedEvent) {
         orderService.rejectOrder(
-                paymentFailedEvent.orderId(),
-                paymentFailedEvent.occurredAt()
+                paymentFailedEvent.orderId()
         );
         kafkaTemplate.send(
                 KafkaTopics.ORDERS_REJECTED,

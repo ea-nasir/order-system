@@ -25,8 +25,7 @@ public class InventoryRejectedConsumer {
     @KafkaListener(topics = KafkaTopics.INVENTORY_REJECTED, groupId = "order.service") //todo: make groupids psfs
     public void consume(InventoryRejectedEvent inventoryRejectedEvent) {
         orderService.rejectOrder(
-                inventoryRejectedEvent.orderId(),
-                inventoryRejectedEvent.occurredAt()
+                inventoryRejectedEvent.orderId()
         );
         kafkaTemplate.send(
                 KafkaTopics.ORDERS_REJECTED,

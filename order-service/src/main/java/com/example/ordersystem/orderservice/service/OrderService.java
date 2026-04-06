@@ -72,7 +72,7 @@ public class OrderService {
                 orderEntity.getUnitPrice(),
                 orderEntity.getTotalAmount(),
                 orderEntity.getStatus(),
-                Instant.now()
+                orderEntity.getCreatedAt()
         );
     }
 

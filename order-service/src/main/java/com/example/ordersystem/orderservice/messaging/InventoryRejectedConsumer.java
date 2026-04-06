@@ -1,7 +1,7 @@
 package com.example.ordersystem.orderservice.messaging;
 
 import com.example.ordersystem.orderservice.service.OrderService;
-import com.example.ordersystem.sharedevents.OrderConfirmedEvent;
+import com.example.ordersystem.sharedevents.InventoryRejectedEvent;
 import com.example.ordersystem.sharedevents.OrderRejectedEvent;
 import com.example.ordersystem.sharedevents.PaymentFailedEvent;
 import config.KafkaTopics;
@@ -11,30 +11,31 @@ import org.springframework.stereotype.Component;
 
 import java.time.Instant;
 import java.util.UUID;
+
 @Component
-public class PaymentFailedConsumer {
+public class InventoryRejectedConsumer {
     OrderService orderService;
     KafkaTemplate<String, Object> kafkaTemplate;
 
-    public PaymentFailedConsumer(OrderService orderService, KafkaTemplate<String, Object> kafkaTemplate) {
+    public InventoryRejectedConsumer(OrderService orderService, KafkaTemplate<String, Object> kafkaTemplate) {
         this.orderService = orderService;
         this.kafkaTemplate = kafkaTemplate;
     }
 
-    @KafkaListener(topics = KafkaTopics.PAYMENTS_FAILED, groupId = "order.service") //todo: make groupids psfs
-    public void consume(PaymentFailedEvent paymentFailedEvent) {
+    @KafkaListener(topics = KafkaTopics.INVENTORY_REJECTED, groupId = "order.service") //todo: make groupids psfs
+    public void consume(InventoryRejectedEvent inventoryRejectedEvent) {
         orderService.rejectOrder(
-                paymentFailedEvent.orderId(),
-                paymentFailedEvent.occurredAt()
+                inventoryRejectedEvent.orderId(),
+                inventoryRejectedEvent.occurredAt()
         );
         kafkaTemplate.send(
                 KafkaTopics.ORDERS_REJECTED,
-                paymentFailedEvent.orderId(),
+                inventoryRejectedEvent.orderId(),
                 new OrderRejectedEvent(
                         UUID.randomUUID(),
                         Instant.now(),
-                        paymentFailedEvent.orderId(),
-                        "Order rejected due to payment failure" //todo: make failure reasons constants
+                        inventoryRejectedEvent.orderId(),
+                        "Order rejected due to insufficient inventory"
                 )
         );
     }

@@ -1,25 +1,16 @@
 package com.example.ordersystem.inventoryservice.service;
 
-import com.example.ordersystem.sharedevents.InventoryRejectedEvent;
-import com.example.ordersystem.sharedevents.PaymentFailedEvent;
-import config.KafkaTopics;
-import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
-import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.UUID;
 
 @Service
 public class InventoryService {
     private final Map<String, Integer> stock = new HashMap<>();
     private final Map<String, Reservation> reservationMap = new HashMap<>(); //todo: impl some way to check reservations?
-    private final KafkaTemplate<String, InventoryRejectedEvent> kafkaTemplate;
 
-
-    public InventoryService(KafkaTemplate<String, InventoryRejectedEvent> kafkaTemplate) {
-        this.kafkaTemplate = kafkaTemplate;
+    public InventoryService() {
         initStock(stock);
     }
 
@@ -46,14 +37,6 @@ public class InventoryService {
         }
 
         stock.merge(reservation.productId, reservation.quantity, Integer::sum);
-        InventoryRejectedEvent event = new InventoryRejectedEvent(
-                UUID.randomUUID(),
-                Instant.now(),
-                orderId,
-                "Reservation released after payment failure"
-        );
-
-        kafkaTemplate.send(KafkaTopics.INVENTORY_REJECTED, orderId, event);
     }
 
     public Map<String, Integer> getStock() {

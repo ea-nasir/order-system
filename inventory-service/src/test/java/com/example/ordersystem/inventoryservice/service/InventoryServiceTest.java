@@ -11,12 +11,11 @@ import static org.mockito.Mockito.mock;
 
 class InventoryServiceTest {
 
-    KafkaTemplate<String, InventoryRejectedEvent> kafkaTemplate = mock(KafkaTemplate.class);
-    InventoryService inventoryService = new InventoryService(kafkaTemplate);
+    InventoryService inventoryService = new InventoryService();
 
     @BeforeEach
     void setUp() {
-        inventoryService = new InventoryService(kafkaTemplate);
+        inventoryService = new InventoryService();
     }
 
     @Test

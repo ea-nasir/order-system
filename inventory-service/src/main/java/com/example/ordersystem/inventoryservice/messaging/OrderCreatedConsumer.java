@@ -17,27 +17,35 @@ import java.util.UUID;
 
 @Component
 public class OrderCreatedConsumer {
+
     private static final Logger log = LoggerFactory.getLogger(OrderCreatedConsumer.class);
-    InventoryService inventoryService;
-    KafkaTemplate<String, Object> kafkaTemplate;
+
+    private final InventoryService inventoryService;
+    private final KafkaTemplate<String, Object> kafkaTemplate;
 
     public OrderCreatedConsumer(InventoryService inventoryService, KafkaTemplate<String, Object> kafkaTemplate) {
         this.inventoryService = inventoryService;
         this.kafkaTemplate = kafkaTemplate;
     }
 
-    @KafkaListener(topics = KafkaTopics.ORDERS_CREATED, groupId = "inventory.service") //todo: make groupids psfs
+    @KafkaListener(topics = KafkaTopics.ORDERS_CREATED, groupId = "inventory.service")
     public void consume(OrderCreatedEvent event) {
         LogContext.put(
                 event.orderId(),
                 event.eventId().toString(),
                 "OrderCreatedEvent"
         );
+
         try {
             log.info("Consumed order creation: productId={}, quantity={}, totalAmount={}",
                     event.productId(),
                     event.quantity(),
                     event.totalAmount());
+
+            log.info("Attempting inventory reservation: productId={}, quantity={}",
+                    event.productId(),
+                    event.quantity());
+
             boolean reserved = inventoryService.reserve(
                     event.orderId(),
                     event.productId(),
@@ -45,29 +53,46 @@ public class OrderCreatedConsumer {
             );
 
             if (reserved) {
-                kafkaTemplate.send(
+                InventoryReservedEvent reservedEvent = new InventoryReservedEvent(
+                        UUID.randomUUID(),
+                        Instant.now(),
+                        event.orderId(),
+                        event.productId(),
+                        event.quantity(),
+                        event.totalAmount()
+                );
+
+                log.info("Inventory reservation succeeded: productId={}, quantity={}",
+                        event.productId(),
+                        event.quantity());
+
+                kafkaTemplate.send(KafkaTopics.INVENTORY_RESERVED, event.orderId(), reservedEvent);
+
+                log.info("Published event: topic={}, publishedEventType={}, publishedEventId={}, totalAmount={}",
                         KafkaTopics.INVENTORY_RESERVED,
-                        event.orderId(),
-                        new InventoryReservedEvent(
-                                UUID.randomUUID(),
-                                Instant.now(),
-                                event.orderId(),
-                                event.productId(),
-                                event.quantity(),
-                                event.totalAmount()
-                        )
-                );
+                        "InventoryReservedEvent",
+                        reservedEvent.eventId(),
+                        reservedEvent.totalAmount());
             } else {
-                kafkaTemplate.send(
-                        KafkaTopics.INVENTORY_REJECTED,
+                InventoryRejectedEvent rejectedEvent = new InventoryRejectedEvent(
+                        UUID.randomUUID(),
+                        Instant.now(),
                         event.orderId(),
-                        new InventoryRejectedEvent(
-                                UUID.randomUUID(),
-                                Instant.now(),
-                                event.orderId(),
-                                "Insufficient stock or quantity < 1"
-                        )
+                        "Insufficient stock or quantity < 1"
                 );
+
+                log.warn("Inventory reservation rejected: productId={}, quantity={}, reason={}",
+                        event.productId(),
+                        event.quantity(),
+                        rejectedEvent.reason());
+
+                kafkaTemplate.send(KafkaTopics.INVENTORY_REJECTED, event.orderId(), rejectedEvent);
+
+                log.info("Published event: topic={}, publishedEventType={}, publishedEventId={}, rejectionReason={}",
+                        KafkaTopics.INVENTORY_REJECTED,
+                        "InventoryRejectedEvent",
+                        rejectedEvent.eventId(),
+                        rejectedEvent.reason());
             }
         } finally {
             LogContext.clear();

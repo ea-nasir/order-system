@@ -38,7 +38,7 @@ public class InventoryRejectedConsumer {
             orderService.rejectOrder(
                     inventoryRejectedEvent.orderId()
             );
-            log.warn("Rejected due to inventory failure: orderId={}", inventoryRejectedEvent.orderId());
+            log.warn("Rejected due to inventory failure");
 
             OrderRejectedEvent orderRejectedEvent = new OrderRejectedEvent(
                     UUID.randomUUID(),
@@ -53,11 +53,10 @@ public class InventoryRejectedConsumer {
                     orderRejectedEvent
             );
 
-            log.info("Published event: topic={}, publishedEventType={}, publishedEventId={}, rejectionReason={}",
+            log.info("Published event: topic={}, publishedEventType={}, publishedEventId={}",
                     KafkaTopics.ORDERS_REJECTED,
                     "OrderRejectedEvent",
-                    orderRejectedEvent.eventId(),
-                    orderRejectedEvent.reason());
+                    orderRejectedEvent.eventId());
         } finally {
             LogContext.clear();
         }

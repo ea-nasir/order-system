@@ -100,28 +100,18 @@ public class OrderService {
     }
 
     public void rejectOrder(String orderId) {
-        LogContext.put(orderId, null, "RejectOrder");
-        try {
-            OrderEntity orderEntity = orderRepository.findById(orderId).orElseThrow();
-            orderEntity.setStatus(OrderStatus.REJECTED);
-            orderRepository.save(orderEntity);
+        OrderEntity orderEntity = orderRepository.findById(orderId).orElseThrow();
+        orderEntity.setStatus(OrderStatus.REJECTED);
+        orderRepository.save(orderEntity);
 
-            log.warn("Rejected order");
-        } finally {
-            LogContext.clear();
-        }
+        log.warn("Rejected order");
     }
 
     public void confirmOrder(String orderId) {
-        LogContext.put(orderId, null, "ConfirmOrder");
-        try {
-            OrderEntity orderEntity = orderRepository.findById(orderId).orElseThrow();
-            orderEntity.setStatus(OrderStatus.CONFIRMED);
-            orderRepository.save(orderEntity);
+        OrderEntity orderEntity = orderRepository.findById(orderId).orElseThrow();
+        orderEntity.setStatus(OrderStatus.CONFIRMED);
+        orderRepository.save(orderEntity);
 
-            log.info("Confirmed order");
-        } finally {
-            LogContext.clear();
-        }
+        log.info("Confirmed order");
     }
 }

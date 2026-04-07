@@ -13,6 +13,11 @@ dependencies {
 
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.springframework.kafka:spring-kafka-test'
+    testImplementation "org.wiremock:wiremock-core:<wiremockVersion>"
+    testImplementation "org.wiremock:wiremock-jetty:<wiremockVersion>"
+    testImplementation "org.wiremock:wiremock-junit5:<wiremockVersion>"
+    testImplementation "org.wiremock:wiremock-httpclient-apache5:<wiremockVersion>"
+    testImplementation "org.awaitility:awaitility:4.2.2"
 }
 
 tasks.named('test') {

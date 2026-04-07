@@ -16,6 +16,11 @@ dependencies {
 
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.springframework.kafka:spring-kafka-test'
+    testRuntimeOnly "com.h2database:h2"
+    testImplementation "org.awaitility:awaitility:4.2.2"
+    testImplementation "org.testcontainers:junit-jupiter:<tcVersion>"
+    testImplementation "org.testcontainers:postgresql:<tcVersion>"
+    testImplementation "org.testcontainers:kafka:<tcVersion>"
 }
 
 tasks.named('test') {

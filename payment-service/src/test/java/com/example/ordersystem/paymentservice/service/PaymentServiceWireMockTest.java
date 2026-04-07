@@ -90,7 +90,7 @@ class PaymentServiceWireMockTest {
         PaypalClient paypalClient = new PaypalClient(restClient);
 
         assertThrows(Exception.class, () -> paypalClient.authorize(
-                new PaypalAuthorizeRequest("order-1", BigDecimal.valueOf(1500))
+                new PaypalAuthorizeRequest("order-1", BigDecimal.valueOf(999))
         ));
 
         wireMock.verify(postRequestedFor(urlEqualTo("/paypal/authorize")));

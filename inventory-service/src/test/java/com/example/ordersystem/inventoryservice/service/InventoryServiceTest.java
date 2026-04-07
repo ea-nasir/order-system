@@ -1,17 +1,17 @@
 package com.example.ordersystem.inventoryservice.service;
 
-import com.example.ordersystem.sharedevents.InventoryRejectedEvent;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.kafka.core.KafkaTemplate;
+
+import java.util.HashMap;
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.mock;
 
 class InventoryServiceTest {
 
-    InventoryService inventoryService = new InventoryService();
+    private InventoryService inventoryService;
 
     @BeforeEach
     void setUp() {
@@ -20,7 +20,7 @@ class InventoryServiceTest {
 
     @Test
     void releaseReservation_shouldRestoreStockAfterSuccessfulReservation() {
-        boolean reserved = inventoryService.reserve("order-1", "CHAIR", 2); //todo: bind test quantities to stock setup
+        boolean reserved = inventoryService.reserve("order-1", "CHAIR", 2); // todo: bind test quantities to stock setup
 
         assertTrue(reserved);
         assertEquals(8, inventoryService.getItemFromStock("CHAIR"));
@@ -32,12 +32,12 @@ class InventoryServiceTest {
 
     @Test
     void releaseReservation_shouldDoNothingIfReservationDoesNotExist() {
-        int stockBefore = inventoryService.getStock().hashCode();
+        Map<String, Integer> stockBefore = new HashMap<>(inventoryService.getStock());
         assertEquals(10, inventoryService.getItemFromStock("CHAIR"));
 
         inventoryService.releaseReservation("missing-order");
 
-        assertEquals(stockBefore, inventoryService.getStock().hashCode());
+        assertEquals(stockBefore, inventoryService.getStock());
         assertEquals(10, inventoryService.getItemFromStock("CHAIR"));
     }
 

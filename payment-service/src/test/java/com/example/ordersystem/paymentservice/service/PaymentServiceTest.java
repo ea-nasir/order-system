@@ -54,6 +54,6 @@ class PaymentServiceTest {
         );
 
         assertFalse(result.authorized());
-        assertEquals("PayPal unavailable", result.reason());
+        assertEquals("PayPal unavailable", result.reason()); //todo: make these dynamic instead of comparing with string literal
     }
 }

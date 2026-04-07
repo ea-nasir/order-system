@@ -2,6 +2,7 @@ package com.example.ordersystem.paymentservice.messaging;
 
 import com.example.ordersystem.paymentservice.logging.LogContext;
 import com.example.ordersystem.paymentservice.model.Payment;
+import com.example.ordersystem.paymentservice.model.PaymentAuthorizationResult;
 import com.example.ordersystem.paymentservice.service.PaymentService;
 import com.example.ordersystem.sharedevents.InventoryReservedEvent;
 import com.example.ordersystem.sharedevents.PaymentAuthorizedEvent;
@@ -48,16 +49,16 @@ public class InventoryReservedConsumer {
             log.info("Starting payment authorization: totalAmount={}",
                     inventoryReservedEvent.totalAmount());
 
-            boolean authorized = paymentService.authorize(
+            PaymentAuthorizationResult result = paymentService.authorize(
                     new Payment(orderId, inventoryReservedEvent.totalAmount())
             );
 
-            if (!authorized) {
+            if (!result.authorized()) {
                 PaymentFailedEvent paymentFailedEvent = new PaymentFailedEvent(
                         UUID.randomUUID(),
                         Instant.now(),
                         orderId,
-                        "Payment failed due to amount threshold"
+                        result.reason()
                 );
 
                 kafkaTemplate.send(KafkaTopics.PAYMENTS_FAILED, orderId, paymentFailedEvent);

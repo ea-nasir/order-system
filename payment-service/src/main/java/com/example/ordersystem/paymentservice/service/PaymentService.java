@@ -1,29 +1,37 @@
 package com.example.ordersystem.paymentservice.service;
 
+import com.example.ordersystem.paymentservice.client.PaypalClient;
 import com.example.ordersystem.paymentservice.model.Payment;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.example.ordersystem.paymentservice.model.PaymentAuthorizationResult;
+import com.example.ordersystem.paymentservice.model.PaypalAuthorizeRequest;
+import com.example.ordersystem.paymentservice.model.PaypalAuthorizeResponse;
 import org.springframework.stereotype.Service;
-
-import java.math.BigDecimal;
+import org.springframework.web.client.RestClientException;
 
 @Service
 public class PaymentService {
 
-    private static final Logger log = LoggerFactory.getLogger(PaymentService.class);
-    private static final long PAYMENT_AMOUNT_LIMIT = 999L;
+    private final PaypalClient paypalClient;
 
-    public boolean authorize(Payment payment) {
-        log.info("Authorizing payment: amount={}", payment.amount());
+    public PaymentService(PaypalClient paypalClient) {
+        this.paypalClient = paypalClient;
+    }
 
-        if (payment.amount().compareTo(BigDecimal.valueOf(PAYMENT_AMOUNT_LIMIT)) > 0) {
-            log.warn("Payment authorization declined: amount={}, threshold={}",
-                    payment.amount(),
-                    PAYMENT_AMOUNT_LIMIT);
-            return false;
+    public PaymentAuthorizationResult authorize(Payment payment) {
+        try {
+            PaypalAuthorizeResponse response = paypalClient.authorize(
+                    new PaypalAuthorizeRequest(payment.orderId(), payment.amount())
+            );
+
+            return new PaymentAuthorizationResult(
+                    response.authorized(),
+                    response.reason()
+            );
+        } catch (RestClientException ex) {
+            return new PaymentAuthorizationResult(
+                    false,
+                    "PayPal unavailable"
+            );
         }
-
-        log.info("Payment authorization approved: amount={}", payment.amount());
-        return true;
     }
 }

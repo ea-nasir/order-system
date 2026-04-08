@@ -68,18 +68,18 @@ class OrderServiceTest {
         assertNotNull(publishedEvent.eventId());
         assertNotNull(publishedEvent.occurredAt());
         assertEquals(savedEntity.getOrderId(), publishedEvent.orderId());
-        assertEquals("customer-1", publishedEvent.customerId());
-        assertEquals("CHAIR", publishedEvent.productId());
-        assertEquals(2, publishedEvent.quantity());
-        assertEquals(new BigDecimal("99.99"), publishedEvent.unitPrice());
-        assertEquals(new BigDecimal("199.98"), publishedEvent.totalAmount());
+        assertEquals(savedEntity.getCustomerId(), publishedEvent.customerId());
+        assertEquals(savedEntity.getProductId(), publishedEvent.productId());
+        assertEquals(savedEntity.getQuantity(), publishedEvent.quantity());
+        assertEquals(savedEntity.getUnitPrice(), publishedEvent.unitPrice());
+        assertEquals(savedEntity.getTotalAmount(), publishedEvent.totalAmount());
 
         assertEquals(savedEntity.getOrderId(), response.orderId());
-        assertEquals("customer-1", response.customerId());
-        assertEquals("CHAIR", response.productId());
-        assertEquals(2, response.quantity());
-        assertEquals(new BigDecimal("99.99"), response.unitPrice());
-        assertEquals(new BigDecimal("199.98"), response.totalAmount());
+        assertEquals(savedEntity.getCustomerId(), response.customerId());
+        assertEquals(savedEntity.getProductId(), response.productId());
+        assertEquals(savedEntity.getQuantity(), response.quantity());
+        assertEquals(savedEntity.getUnitPrice(), response.unitPrice());
+        assertEquals(savedEntity.getTotalAmount(), response.totalAmount());
         assertEquals(OrderStatus.CREATED, response.status());
         assertNotNull(response.createdAt());
     }

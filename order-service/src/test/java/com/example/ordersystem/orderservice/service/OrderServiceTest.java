@@ -23,7 +23,7 @@ package com.example.ordersystem.orderservice.service;
 class OrderServiceTest {
 
     private OrderRepository orderRepository;
-    private KafkaTemplate kafkaTemplate;
+    private KafkaTemplate<String, OrderCreatedEvent> kafkaTemplate;
     private OrderService orderService;
 
     @BeforeEach
@@ -42,18 +42,21 @@ class OrderServiceTest {
                 new BigDecimal("99.99")
         );
 
+        BigDecimal expectedTotalAmount = new BigDecimal("199.98");
+
         OrderResponse response = orderService.createOrder(request);
 
         ArgumentCaptor<OrderEntity> entityCaptor = ArgumentCaptor.forClass(OrderEntity.class);
         verify(orderRepository).save(entityCaptor.capture());
 
         OrderEntity savedEntity = entityCaptor.getValue();
+
         assertNotNull(savedEntity.getOrderId());
-        assertEquals("customer-1", savedEntity.getCustomerId());
-        assertEquals("CHAIR", savedEntity.getProductId());
-        assertEquals(2, savedEntity.getQuantity());
-        assertEquals(new BigDecimal("99.99"), savedEntity.getUnitPrice());
-        assertEquals(new BigDecimal("199.98"), savedEntity.getTotalAmount());
+        assertEquals(request.customerId(), savedEntity.getCustomerId());
+        assertEquals(request.productId(), savedEntity.getProductId());
+        assertEquals(request.quantity(), savedEntity.getQuantity());
+        assertEquals(request.unitPrice(), savedEntity.getUnitPrice());
+        assertEquals(expectedTotalAmount, savedEntity.getTotalAmount());
         assertEquals(OrderStatus.CREATED, savedEntity.getStatus());
         assertNotNull(savedEntity.getCreatedAt());
 
@@ -65,23 +68,24 @@ class OrderServiceTest {
         );
 
         OrderCreatedEvent publishedEvent = eventCaptor.getValue();
+
         assertNotNull(publishedEvent.eventId());
         assertNotNull(publishedEvent.occurredAt());
         assertEquals(savedEntity.getOrderId(), publishedEvent.orderId());
-        assertEquals(savedEntity.getCustomerId(), publishedEvent.customerId());
-        assertEquals(savedEntity.getProductId(), publishedEvent.productId());
-        assertEquals(savedEntity.getQuantity(), publishedEvent.quantity());
-        assertEquals(savedEntity.getUnitPrice(), publishedEvent.unitPrice());
-        assertEquals(savedEntity.getTotalAmount(), publishedEvent.totalAmount());
+        assertEquals(request.customerId(), publishedEvent.customerId());
+        assertEquals(request.productId(), publishedEvent.productId());
+        assertEquals(request.quantity(), publishedEvent.quantity());
+        assertEquals(request.unitPrice(), publishedEvent.unitPrice());
+        assertEquals(expectedTotalAmount, publishedEvent.totalAmount());
 
         assertEquals(savedEntity.getOrderId(), response.orderId());
-        assertEquals(savedEntity.getCustomerId(), response.customerId());
-        assertEquals(savedEntity.getProductId(), response.productId());
-        assertEquals(savedEntity.getQuantity(), response.quantity());
-        assertEquals(savedEntity.getUnitPrice(), response.unitPrice());
-        assertEquals(savedEntity.getTotalAmount(), response.totalAmount());
+        assertEquals(request.customerId(), response.customerId());
+        assertEquals(request.productId(), response.productId());
+        assertEquals(request.quantity(), response.quantity());
+        assertEquals(request.unitPrice(), response.unitPrice());
+        assertEquals(expectedTotalAmount, response.totalAmount());
         assertEquals(OrderStatus.CREATED, response.status());
-        assertNotNull(response.createdAt());
+        assertEquals(savedEntity.getCreatedAt(), response.createdAt());
     }
 
     @Test
@@ -109,7 +113,7 @@ class OrderServiceTest {
         assertEquals(new BigDecimal("99.99"), response.unitPrice());
         assertEquals(new BigDecimal("199.98"), response.totalAmount());
         assertEquals(OrderStatus.CREATED, response.status());
-        assertNotNull(response.createdAt());
+        assertEquals(createdAt, response.createdAt());
     }
 
     @Test
